@@ -53706,9 +53706,9 @@
     "inChase": "Y",
     "category": "Auto",
     "pointsWeight": 500,
-    "owned": 1,
+    "owned": 0,
     "incoming": 0,
-    "missing": 0,
+    "missing": 1,
     "inscription": "",
     "image": "images/669094ab9fa4.jpg"
   },
