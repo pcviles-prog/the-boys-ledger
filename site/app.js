@@ -1,6 +1,7 @@
-const $ = (sel) => document.querySelector(sel);
+﻿const $ = (sel) => document.querySelector(sel);
 
-let ALL = [];
+let ALL = [];\r
+let IMG_OVERRIDES = {}; // cardKey (or id) -> { src, href, credit }
 let FILTERED = [];
 let SORT = { key: null, dir: "asc" };
 
@@ -9,19 +10,19 @@ function uniq(arr){
 }
 
 function fmtInt(n){
-  if(n === null || n === undefined) return "—";
+  if(n === null || n === undefined) return "â€”";
   const x = Number(n);
-  if(Number.isNaN(x)) return "—";
+  if(Number.isNaN(x)) return "â€”";
   return x.toLocaleString();
 }
 
 function badgeOwned(card){
-  if(card.owned === 1) return '<span class="badge badge--ok">✓</span>';
-  if(card.incoming === 1) return '<span class="badge badge--warn">⧗</span>';
-  return '<span class="badge badge--no">—</span>';
+  if(card.owned === 1) return '<span class="badge badge--ok">âœ“</span>';
+  if(card.incoming === 1) return '<span class="badge badge--warn">â§—</span>';
+  return '<span class="badge badge--no">â€”</span>';
 }
 function badgeIncoming(card){
-  return card.incoming === 1 ? '<span class="badge badge--warn">⧗</span>' : '<span class="badge">—</span>';
+  return card.incoming === 1 ? '<span class="badge badge--warn">â§—</span>' : '<span class="badge">â€”</span>';
 }
 
 function slugify(str){
@@ -162,7 +163,7 @@ function renderTable(cards){
       <td>${card.cardNo}</td>
       <td>${card.name}</td>
       <td>${card.variant}</td>
-      <td>${card.printRun ?? "—"}</td>
+      <td>${card.printRun ?? "â€”"}</td>
       <td>${card.pointsWeight ?? ""}</td>
     `;
     frag.appendChild(tr);
@@ -179,30 +180,45 @@ function openCard(id){
   const card = ALL.find(c=>c.id===id);
   if(!card) return;
 
-  $("#dlgTitle").textContent = `${card.cardNo} — ${card.name}`;
-  $("#dlgSubtitle").textContent = `${card.set} • ${card.variant}`;
+  $("#dlgTitle").textContent = `${card.cardNo} â€” ${card.name}`;
+  $("#dlgSubtitle").textContent = `${card.set} â€¢ ${card.variant}`;
 
   const img = $("#dlgImg");
   const simpleImagePath = getSimpleImagePath(card);
-  let didFallbackToLegacy = false;
-  img.src = simpleImagePath;
+  const ov = (IMG_OVERRIDES && (IMG_OVERRIDES[card.cardKey] || IMG_OVERRIDES[card.id])) || null;
+
+  // Prefer your own local images first, then fall back to COMC hotlink.
+  const attempts = [simpleImagePath];
+  if(card.image && card.image !== simpleImagePath) attempts.push(card.image);
+  if(ov && ov.src) attempts.push(ov.src);
+
   img.alt = `${card.cardNo} ${card.name}`;
   img.hidden = false;
-  img.onerror = ()=>{
-    if(didFallbackToLegacy){
+
+  let ai = 0;
+  const tryNext = ()=>{
+    if(ai >= attempts.length){
       img.onerror = null;
       img.hidden = true;
       return;
     }
-    didFallbackToLegacy = true;
-    img.src = card.image;
+    img.src = attempts[ai++];
   };
+  img.onerror = tryNext;
+  tryNext();
 
   // details panel
   const details = $("#dlgDetails");
-  const pr = card.printRun ? fmtInt(card.printRun) : "—";
+  const pr = card.printRun ? fmtInt(card.printRun) : "â€”";
   const plate = card.isPlate === "Y" ? "Yes" : "No";
   const chase = card.inChase === "Y" ? "Yes" : "No";
+
+  const imgSourceLine = ov && (ov.href || ov.src)
+    ? `<div><strong>Image source:</strong> ${ov.href
+        ? `<a href="${ov.href}" target="_blank" rel="noopener">${ov.credit || "COMC.com"}</a>`
+        : (ov.credit || "External")
+      }</div>`
+    : "";
   const lines = [
     `<div><strong>Group:</strong> ${card.group}</div>`,
     `<div><strong>Category:</strong> ${card.category}</div>`,
@@ -233,6 +249,14 @@ function openCard(id){
 async function main(){
   const res = await fetch("data/cards.json");
   ALL = await res.json();
+
+  // Optional: override images (e.g., hotlinked COMC) without touching cards.json
+  try{
+    const r2 = await fetch("data/image_overrides.json", {cache:"no-store"});
+    if(r2.ok) IMG_OVERRIDES = await r2.json();
+  }catch(_){
+    IMG_OVERRIDES = {};
+  }
 
   // Ensure numeric-ish fields are the right type
   ALL = ALL.map(c => ({
@@ -313,3 +337,5 @@ main().catch(err=>{
   const tbody = $("#tableBody");
   tbody.innerHTML = `<tr><td colspan="9" class="muted">Failed to load data/cards.json. See console.</td></tr>`;
 });
+
+
