@@ -2,6 +2,7 @@ const $ = (sel) => document.querySelector(sel);
 
 let ALL = [];
 let FILTERED = [];
+let SORT = { key: null, dir: "asc" };
 
 function uniq(arr){
   return [...new Set(arr)].filter(v => v && String(v).trim().length>0).sort((a,b)=>String(a).localeCompare(String(b)));
@@ -83,8 +84,47 @@ function applyFilters(){
     return matches(c,q);
   });
 
+  FILTERED = sortCards(FILTERED, SORT.key, SORT.dir);
+
   renderTable(FILTERED);
   setStatsUI(computeStats(FILTERED));
+}
+
+function sortCards(cards, key, dir = "asc"){
+  if(!key) return cards.slice();
+  const mult = dir === "desc" ? -1 : 1;
+  const sorted = cards.slice().sort((a,b)=>{
+    const av = a[key];
+    const bv = b[key];
+
+    const aMissing = av === null || av === undefined || av === "";
+    const bMissing = bv === null || bv === undefined || bv === "";
+    if(aMissing && bMissing) return 0;
+    if(aMissing) return 1;
+    if(bMissing) return -1;
+
+    if(typeof av === "number" && typeof bv === "number"){
+      return (av - bv) * mult;
+    }
+
+    return String(av).localeCompare(String(bv), undefined, {numeric:true, sensitivity:"base"}) * mult;
+  });
+  return sorted;
+}
+
+function updateSortUI(){
+  document.querySelectorAll("#cardsTable th[data-sort-key]").forEach((th)=>{
+    const key = th.dataset.sortKey;
+    th.classList.remove("is-sorted-asc", "is-sorted-desc");
+    if(key === SORT.key){
+      th.classList.add(SORT.dir === "asc" ? "is-sorted-asc" : "is-sorted-desc");
+    }
+  });
+}
+
+function setStatusFilter(status){
+  $("#filterStatus").value = status;
+  applyFilters();
 }
 
 function renderTable(cards){
@@ -198,6 +238,32 @@ async function main(){
     applyFilters();
   });
 
+  document.querySelectorAll("#cardsTable th[data-sort-key]").forEach((th)=>{
+    th.addEventListener("click", ()=>{
+      const key = th.dataset.sortKey;
+      if(SORT.key === key){
+        SORT.dir = SORT.dir === "asc" ? "desc" : "asc";
+      }else{
+        SORT.key = key;
+        SORT.dir = "asc";
+      }
+      updateSortUI();
+      applyFilters();
+    });
+  });
+
+  document.querySelectorAll(".stat[data-status-filter]").forEach((card)=>{
+    const status = card.dataset.statusFilter;
+    const onActivate = ()=>setStatusFilter(status);
+    card.addEventListener("click", onActivate);
+    card.addEventListener("keydown", (e)=>{
+      if(e.key === "Enter" || e.key === " "){
+        e.preventDefault();
+        onActivate();
+      }
+    });
+  });
+
   $("#tableBody").addEventListener("click", (e)=>{
     const tr = e.target.closest("tr");
     if(!tr || !tr.dataset.id) return;
@@ -207,6 +273,8 @@ async function main(){
   $("#dlgClose").addEventListener("click", ()=>$("#cardDialog").close());
   $("#btnAbout").addEventListener("click", ()=>$("#aboutDialog").showModal());
   $("#aboutClose").addEventListener("click", ()=>$("#aboutDialog").close());
+
+  updateSortUI();
 }
 
 main().catch(err=>{
