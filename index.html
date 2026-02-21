@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Vought Confidential — Asset Ledger</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="header">
+    <div class="header__title">
+      <h1>Vought Asset Ledger <span class="stamp">CONFIDENTIAL</span></h1>
+      <p class="subtitle">Unofficial field tool for tracking SkyBox The Boys cards. Zero databases. Maximum paranoia.</p>
+    </div>
+    <div class="header__actions">
+      <button id="btnResetFilters" class="btn">Reset filters</button>
+      <button id="btnAbout" class="btn btn--ghost">About</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="cards">
+      <div class="stat" data-status-filter="all" role="button" tabindex="0" title="Show all cards">
+        <div class="stat__label">Total cards</div>
+        <div id="statTotal" class="stat__value">—</div>
+      </div>
+      <div class="stat" data-status-filter="owned" role="button" tabindex="0" title="Filter to owned cards">
+        <div class="stat__label">Owned</div>
+        <div id="statOwned" class="stat__value">—</div>
+      </div>
+      <div class="stat" data-status-filter="incoming" role="button" tabindex="0" title="Filter to incoming cards">
+        <div class="stat__label">Incoming</div>
+        <div id="statIncoming" class="stat__value">—</div>
+      </div>
+      <div class="stat" data-status-filter="missing" role="button" tabindex="0" title="Filter to missing cards">
+        <div class="stat__label">Missing</div>
+        <div id="statMissing" class="stat__value">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Completion</div>
+        <div id="statCompletion" class="stat__value">—</div>
+      </div>
+      <div class="stat">
+        <div class="stat__label">Points (Owned / Total)</div>
+        <div id="statPoints" class="stat__value">—</div>
+      </div>
+    </section>
+
+    <section class="filters">
+      <div class="field">
+        <label for="search">Search</label>
+        <input id="search" type="search" placeholder="Homelander… A-? … MW-3 … Black …" />
+      </div>
+      <div class="field">
+        <label for="filterGroup">Group</label>
+        <select id="filterGroup"></select>
+      </div>
+      <div class="field">
+        <label for="filterSet">Set</label>
+        <select id="filterSet"></select>
+      </div>
+      <div class="field">
+        <label for="filterVariant">Variant</label>
+        <select id="filterVariant"></select>
+      </div>
+      <div class="field">
+        <label for="filterStatus">Status</label>
+        <select id="filterStatus">
+          <option value="all">All</option>
+          <option value="owned">Owned</option>
+          <option value="incoming">Incoming</option>
+          <option value="missing">Missing</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="tableWrap">
+      <table class="table" id="cardsTable">
+        <thead>
+          <tr>
+            <th data-sort-key="owned">Owned</th>
+            <th data-sort-key="incoming">Incoming</th>
+            <th data-sort-key="group">Group</th>
+            <th data-sort-key="set">Set</th>
+            <th data-sort-key="cardNo">#</th>
+            <th data-sort-key="name">Card</th>
+            <th data-sort-key="variant">Variant</th>
+            <th data-sort-key="printRun">Print Run</th>
+            <th data-sort-key="pointsWeight">Pts</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="9" class="muted">Loading…</td></tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <dialog id="cardDialog" class="dialog">
+    <div class="dialog__header">
+      <div>
+        <div id="dlgTitle" class="dialog__title">Card</div>
+        <div id="dlgSubtitle" class="dialog__subtitle">—</div>
+      </div>
+      <button id="dlgClose" class="btn btn--ghost">Close</button>
+    </div>
+
+    <div class="dialog__content">
+      <div class="dialog__imageWrap">
+        <img id="dlgImg" alt="" loading="lazy" />
+        <div class="hint">Drop an image at <code>site/images/&lt;id&gt;.jpg</code> to see it here.</div>
+      </div>
+
+      <div class="dialog__details" id="dlgDetails"></div>
+
+      <div class="dialog__links">
+        <a id="lnkTcdb" class="btn" target="_blank" rel="noopener">Search TCDB</a>
+        <a id="lnkEbay" class="btn btn--ghost" target="_blank" rel="noopener">Search eBay sold</a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="aboutDialog" class="dialog">
+    <div class="dialog__header">
+      <div>
+        <div class="dialog__title">About this tracker</div>
+        <div class="dialog__subtitle">Static site. No server. Your data stays as files.</div>
+      </div>
+      <button id="aboutClose" class="btn btn--ghost">Close</button>
+    </div>
+    <div class="dialog__content">
+      <p>
+        This page reads <code>site/data/cards.json</code> (exported from your Excel file) and builds a searchable checklist.
+        It’s designed to be hosted on GitHub Pages or just opened locally.
+      </p>
+      <ul>
+        <li><strong>To update data:</strong> run <code>python scripts/export_from_excel.py</code> and re-deploy.</li>
+        <li><strong>To add images:</strong> put <code>.jpg</code> files into <code>site/images/</code> named by the card <em>id</em> shown in the detail view.</li>
+      </ul>
+      <p class="muted">
+        Tip: keep a “public” export with ownership fields removed if you don’t want the world to see your progress.
+      </p>
+    </div>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
