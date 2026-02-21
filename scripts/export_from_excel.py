@@ -16,7 +16,7 @@ from pathlib import Path
 import pandas as pd
 
 
-EXCEL_PATH = Path(__file__).resolve().parents[1] / "2025_Upper_Deck_Skybox_The_Boys_Master_Checklist_points_rework_v14.xlsx"
+EXCEL_PATH = Path(os.environ["USERPROFILE"]) / "OneDrive" / "Documents" / "2025_Upper_Deck_Skybox_The_Boys_Master_Checklist_points_rework_v14.xlsx"
 OUT_JSON = Path(__file__).resolve().parents[1] / "site" / "data" / "cards.json"
 
 

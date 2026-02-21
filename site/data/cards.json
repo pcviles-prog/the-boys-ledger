@@ -38126,9 +38126,9 @@
     "inChase": "Y",
     "category": "Lenticular/SP",
     "pointsWeight": 18,
-    "owned": 0,
+    "owned": 1,
     "incoming": 0,
-    "missing": 1,
+    "missing": 0,
     "inscription": "",
     "image": "images/7e9d9cdd975e.jpg"
   },
