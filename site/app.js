@@ -1,6 +1,27 @@
 ﻿const $ = (sel) => document.querySelector(sel);
 
-let ALL = [];\r
+let ALL = [];
+async function fetchJsonFallback(paths, opts){
+  for(const p of paths){
+    try{
+      const r = await fetch(p, opts || {cache:"no-store"});
+      if(r && r.ok) return await r.json();
+    }catch(_){}
+  }
+  throw new Error("Failed to load JSON from: " + paths.join(", "));
+}
+
+function expandLocalPaths(p){
+  if(!p) return [];
+  // If it's an http(s) URL, return as-is.
+  if(/^https?:\/\//i.test(p)) return [p];
+
+  // Try both root and site/ prefixed versions.
+  const out = [p];
+  if(!p.startsWith("site/")) out.push("site/" + p);
+  return out;
+}
+\r
 let IMG_OVERRIDES = {}; // cardKey (or id) -> { src, href, credit }
 let FILTERED = [];
 let SORT = { key: null, dir: "asc" };
@@ -343,6 +364,7 @@ main().catch(err=>{
   const tbody = $("#tableBody");
   tbody.innerHTML = `<tr><td colspan="9" class="muted">Failed to load data/cards.json. See console.</td></tr>`;
 });
+
 
 
 
