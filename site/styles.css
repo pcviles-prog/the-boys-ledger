@@ -145,6 +145,30 @@ input:focus, select:focus{ border-color: var(--accent); box-shadow:0 0 0 2px rgb
   z-index:2;
 }
 .table tr:hover td{ background:#0e1520; cursor:pointer; }
+
+.stat[data-status-filter]{
+  cursor:pointer;
+  transition:border-color .15s ease, transform .1s ease;
+}
+.stat[data-status-filter]:hover,
+.stat[data-status-filter]:focus-visible{
+  border-color:var(--accent);
+  transform:translateY(-1px);
+  outline:none;
+}
+
+.table th[data-sort-key]{
+  cursor:pointer;
+  user-select:none;
+  white-space:nowrap;
+}
+.table th[data-sort-key]::after{
+  content:" ↕";
+  color:var(--muted);
+  font-size:11px;
+}
+.table th.is-sorted-asc::after{ content:" ↑"; color:var(--accent2); }
+.table th.is-sorted-desc::after{ content:" ↓"; color:var(--accent2); }
 .muted{ color:var(--muted); }
 
 .badge{

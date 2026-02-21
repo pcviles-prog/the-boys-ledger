@@ -20,19 +20,19 @@
 
   <main class="container">
     <section class="cards">
-      <div class="stat">
+      <div class="stat" data-status-filter="all" role="button" tabindex="0" title="Show all cards">
         <div class="stat__label">Total cards</div>
         <div id="statTotal" class="stat__value">—</div>
       </div>
-      <div class="stat">
+      <div class="stat" data-status-filter="owned" role="button" tabindex="0" title="Filter to owned cards">
         <div class="stat__label">Owned</div>
         <div id="statOwned" class="stat__value">—</div>
       </div>
-      <div class="stat">
+      <div class="stat" data-status-filter="incoming" role="button" tabindex="0" title="Filter to incoming cards">
         <div class="stat__label">Incoming</div>
         <div id="statIncoming" class="stat__value">—</div>
       </div>
-      <div class="stat">
+      <div class="stat" data-status-filter="missing" role="button" tabindex="0" title="Filter to missing cards">
         <div class="stat__label">Missing</div>
         <div id="statMissing" class="stat__value">—</div>
       </div>
@@ -78,15 +78,15 @@
       <table class="table" id="cardsTable">
         <thead>
           <tr>
-            <th>Owned</th>
-            <th>Incoming</th>
-            <th>Group</th>
-            <th>Set</th>
-            <th>#</th>
-            <th>Card</th>
-            <th>Variant</th>
-            <th>Print Run</th>
-            <th>Pts</th>
+            <th data-sort-key="owned">Owned</th>
+            <th data-sort-key="incoming">Incoming</th>
+            <th data-sort-key="group">Group</th>
+            <th data-sort-key="set">Set</th>
+            <th data-sort-key="cardNo">#</th>
+            <th data-sort-key="name">Card</th>
+            <th data-sort-key="variant">Variant</th>
+            <th data-sort-key="printRun">Print Run</th>
+            <th data-sort-key="pointsWeight">Pts</th>
           </tr>
         </thead>
         <tbody id="tableBody">
