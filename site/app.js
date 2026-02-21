@@ -24,6 +24,25 @@ function badgeIncoming(card){
   return card.incoming === 1 ? '<span class="badge badge--warn">⧗</span>' : '<span class="badge">—</span>';
 }
 
+function slugify(str){
+  return String(str ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function getSafeCardNo(cardNo){
+  return String(cardNo ?? "").replace(/[^A-Za-z0-9-]/g, "");
+}
+
+function getSimpleImagePath(card){
+  const safeCardNo = getSafeCardNo(card.cardNo);
+  if(card.variant === "Base"){
+    return `images/cards/${safeCardNo}.jpg`;
+  }
+  return `images/cards/${safeCardNo}-${slugify(card.variant)}.jpg`;
+}
+
 function computeStats(cards){
   const total = cards.length;
   const owned = cards.reduce((a,c)=>a+(c.owned===1?1:0),0);
@@ -164,8 +183,20 @@ function openCard(id){
   $("#dlgSubtitle").textContent = `${card.set} • ${card.variant}`;
 
   const img = $("#dlgImg");
-  img.src = card.image;
+  const simpleImagePath = getSimpleImagePath(card);
+  let didFallbackToLegacy = false;
+  img.src = simpleImagePath;
   img.alt = `${card.cardNo} ${card.name}`;
+  img.hidden = false;
+  img.onerror = ()=>{
+    if(didFallbackToLegacy){
+      img.onerror = null;
+      img.hidden = true;
+      return;
+    }
+    didFallbackToLegacy = true;
+    img.src = card.image;
+  };
 
   // details panel
   const details = $("#dlgDetails");
@@ -185,7 +216,7 @@ function openCard(id){
     card.inscription ? `<div><strong>Inscription:</strong> ${card.inscription}</div>` : "",
     `<hr style="border:none;border-top:1px solid #243043;margin:10px 0;" />`,
     `<div class="muted">Image filename:</div>`,
-    `<div><code>${card.id}.jpg</code></div>`,
+    `<div><code>${simpleImagePath.split("/").pop()}</code></div>`,
     `<div class="muted">Internal key:</div>`,
     `<div><code>${card.cardKey}</code></div>`
   ];
