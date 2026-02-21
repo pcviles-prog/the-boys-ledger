@@ -188,9 +188,14 @@ function openCard(id){
   const ov = (IMG_OVERRIDES && (IMG_OVERRIDES[card.cardKey] || IMG_OVERRIDES[card.id])) || null;
 
   // Prefer your own local images first, then fall back to COMC hotlink.
-  const attempts = [simpleImagePath];
-  if(card.image && card.image !== simpleImagePath) attempts.push(card.image);
-  if(ov && ov.src) attempts.push(ov.src);
+  const attempts = [];
+  for(const p of expandLocalPaths(simpleImagePath)) attempts.push(p);
+  if(card.image && card.image !== simpleImagePath){
+    for(const p of expandLocalPaths(card.image)) attempts.push(p);
+  }
+  if(ov && ov.src){
+    for(const p of expandLocalPaths(ov.src)) attempts.push(p);
+  }
 
   img.alt = `${card.cardNo} ${card.name}`;
   img.hidden = false;
@@ -247,13 +252,14 @@ function openCard(id){
 }
 
 async function main(){
-  const res = await fetch("data/cards.json");
-  ALL = await res.json();
+  ALL = await fetchJsonFallback(["data/cards.json","site/data/cards.json"], {cache:"no-store"});
 
   // Optional: override images (e.g., hotlinked COMC) without touching cards.json
   try{
-    const r2 = await fetch("data/image_overrides.json", {cache:"no-store"});
-    if(r2.ok) IMG_OVERRIDES = await r2.json();
+    IMG_OVERRIDES = await fetchJsonFallback(
+  ["data/image_overrides.json","site/data/image_overrides.json"],
+  {cache:"no-store"}
+);
   }catch(_){
     IMG_OVERRIDES = {};
   }
@@ -337,5 +343,6 @@ main().catch(err=>{
   const tbody = $("#tableBody");
   tbody.innerHTML = `<tr><td colspan="9" class="muted">Failed to load data/cards.json. See console.</td></tr>`;
 });
+
 
 
