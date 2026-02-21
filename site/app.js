@@ -1,4 +1,4 @@
-﻿const $ = (sel) => document.querySelector(sel);
+const $ = (sel) => document.querySelector(sel);
 
 let ALL = [];
 async function fetchJsonFallback(paths, opts){
@@ -6,7 +6,7 @@ async function fetchJsonFallback(paths, opts){
     try{
       const r = await fetch(p, opts || {cache:"no-store"});
       if(r && r.ok) return await r.json();
-    }catch(_){}
+    }catch(e){}
   }
   throw new Error("Failed to load JSON from: " + paths.join(", "));
 }
@@ -14,7 +14,7 @@ async function fetchJsonFallback(paths, opts){
 function expandLocalPaths(p){
   if(!p) return [];
   // If it's an http(s) URL, return as-is.
-  if(/^https?:\/\//i.test(p)) return [p];
+  if(/^https?:\/\/?/i.test(p)) return [p];
 
   // Try both root and site/ prefixed versions.
   const out = [p];
