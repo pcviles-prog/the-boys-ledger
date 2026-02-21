@@ -25,7 +25,7 @@ body{
     radial-gradient(1200px 650px at 18% -10%, rgba(225,6,0,.22), transparent 60%),
     radial-gradient(900px 500px at 82% 0%, rgba(242,211,95,.10), transparent 55%),
     linear-gradient(180deg, var(--bg), #040407),
-    url("assets/bg-collage.jpg") center / cover fixed;
+    url("assets/bg/ud-boys-collage.jpg") center / cover fixed;
   color:var(--text);
 }
 
@@ -67,7 +67,7 @@ body::before{
 .header{
   background:
     linear-gradient(180deg, rgba(10,14,20,.92), rgba(10,14,20,.82)),
-    url("assets/pack.png") right 20px center / 260px auto no-repeat;
+    url("assets/bg/ud-boys-pack.png") right 20px center / 260px auto no-repeat;
 }
 
 
